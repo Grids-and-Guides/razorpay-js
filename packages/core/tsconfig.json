@@ -1,0 +1,4 @@
+{
+  "extends": "@razorpay-js/tsconfig/base.json",
+  "include": ["src"]
+}
