@@ -228,8 +228,8 @@ rest of the plan doesn't change.
 
 | Workflow              | Trigger                                    | Jobs                                                                                                                           |
 | --------------------- | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------ |
-| `ci.yml`              | PR, push to `main`                         | install (pnpm cache) → `turbo run lint typecheck test build` → publint/attw → size-limit → build examples; Node 22 & 24 matrix |
-| `release.yml`         | push to `main`                             | `changesets/action`: opens/updates a **"Version Packages" PR**; when merged, publishes to npm                                  |
+| `ci.yml`              | PR, push to `develop`/`main`               | install (pnpm cache) → `turbo run lint typecheck test build` → publint/attw → size-limit → build examples; Node 22 & 24 matrix |
+| `release.yml`         | push to `develop` / `main`                 | On `develop`: opens/updates the **"Version Packages" PR**. On `main`: publishes to npm + GitHub releases                       |
 | `e2e.yml`             | PR touching `packages/**` or `examples/**` | Playwright against example apps (Phase 2)                                                                                      |
 | `pr-title.yml`        | PR                                         | Conventional-commit PR title check (we squash-merge)                                                                           |
 | Dependabot / Renovate | weekly                                     | grouped dependency updates                                                                                                     |
@@ -244,7 +244,8 @@ rest of the plan doesn't change.
   "Built and signed on GitHub Actions" badge).
   This matters for a payments library, and npm has been phasing out long-lived publish tokens.
 - Prereleases: `changeset pre enter next` → publishes under the `next` dist-tag for beta testing.
-- Branch protection on `main`: CI must pass, 1 review required, squash merge only.
+- **Branches:** `develop` is the default branch and every PR targets it. `main` is the release branch and only receives `develop` merges.
+- Branch protection on both: CI must pass, 1 review required. `develop` uses squash merge only; `develop` → `main` uses a merge commit.
 
 ---
 

@@ -47,7 +47,7 @@ examples/         example apps (coming in Phase 2)
 ## Making a change
 
 1. Open or pick an issue. For anything bigger than a bug fix, agree on the approach in the issue first.
-2. Branch from `main`.
+2. Branch from `develop` (the default branch). PRs target `develop`; `main` only receives releases.
 3. Write tests alongside the change. Tests live in each package's `test/` folder. Use the fake
    `window.Razorpay` in `packages/core/test/helpers.ts`. Tests must never load the real `checkout.js`.
 4. **Add a changeset** if you changed a published package:
@@ -88,12 +88,26 @@ example app. Copy `packages/react` as a template; the adapter should be a thin l
 
 ## Releasing (maintainers)
 
-Releases are automated:
+We use two long-lived branches:
 
-1. Merged PRs with changesets make the **Release** workflow open or update a
-   **"chore: version packages"** PR. That PR bumps versions and writes the CHANGELOGs.
-2. Merging that PR publishes to npm from GitHub Actions using
-   [trusted publishing](https://docs.npmjs.com/trusted-publishers), with provenance. No npm token is stored anywhere.
+| Branch    | Purpose                                                                             |
+| --------- | ----------------------------------------------------------------------------------- |
+| `develop` | Default branch. All PRs merge here.                                                 |
+| `main`    | Release branch. Every push to `main` publishes whatever versions aren't on npm yet. |
+
+Cutting a release:
+
+1. As PRs with changesets land on `develop`, the **Release** workflow keeps a
+   **"chore: version packages"** PR open against `develop`. It bumps versions and writes the CHANGELOGs.
+2. When you're ready to release, merge that PR into `develop`.
+3. Open a PR from `develop` → `main` titled `chore: release` and merge it with a **merge commit**
+   (not squash), so `main` and `develop` keep the same history.
+4. The push to `main` publishes to npm using
+   [trusted publishing](https://docs.npmjs.com/trusted-publishers) with provenance, then creates
+   git tags and GitHub releases. No npm token is stored anywhere.
+
+The publish job refuses to run if unversioned changesets reach `main`, so step 2 can't be skipped by accident.
+Because versioning happens on `develop`, there's nothing to merge back from `main` afterwards.
 
 Prereleases: `pnpm changeset pre enter next` publishes to the `next` dist-tag until `pnpm changeset pre exit`.
 

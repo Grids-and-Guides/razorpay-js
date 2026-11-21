@@ -4,6 +4,7 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    target-branch: develop
     groups:
       dev-dependencies:
         dependency-type: development
@@ -14,5 +15,6 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    target-branch: develop
     commit-message:
       prefix: ci

@@ -3,7 +3,7 @@ name: CI
 on:
   pull_request:
   push:
-    branches: [main]
+    branches: [develop, main]
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -70,7 +70,7 @@ jobs:
 
   changeset:
     name: Changeset present
-    if: github.event_name == 'pull_request' && github.head_ref != 'changeset-release/main'
+    if: github.event_name == 'pull_request' && github.head_ref != 'changeset-release/develop'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
