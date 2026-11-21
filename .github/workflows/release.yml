@@ -79,4 +79,8 @@ jobs:
           createGithubReleases: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # No NPM_TOKEN: publishing uses npm trusted publishing via the id-token permission.
+          # Only needed for the very first publish, before npm trusted publishing can be
+          # configured (npm requires the package to exist first). Afterwards, delete the
+          # NPM_TOKEN secret from the `npm` environment: this becomes empty and npm
+          # authenticates through trusted publishing (OIDC, via the id-token permission).
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
