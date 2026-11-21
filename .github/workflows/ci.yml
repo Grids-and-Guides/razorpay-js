@@ -70,7 +70,8 @@ jobs:
 
   changeset:
     name: Changeset present
-    if: github.event_name == 'pull_request' && github.head_ref != 'changeset-release/develop'
+    # Only feature PRs into develop need changesets; version PRs and develop -> main release PRs don't.
+    if: github.event_name == 'pull_request' && github.base_ref == 'develop' && github.head_ref != 'changeset-release/develop'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
