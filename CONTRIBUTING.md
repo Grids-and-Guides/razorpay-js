@@ -111,7 +111,25 @@ Because versioning happens on `develop`, there's nothing to merge back from `mai
 
 Prereleases: `pnpm changeset pre enter next` publishes to the `next` dist-tag until `pnpm changeset pre exit`.
 
-### One-time npm setup
+### npm trusted publishing
 
-For each package on npmjs.com → _Settings_ → _Trusted publishing_: add GitHub Actions with
-repository `Grids-and-Guides/razorpay-js`, workflow `release.yml`, and environment `npm`.
+Publishing uses [npm trusted publishing](https://docs.npmjs.com/trusted-publishers): the Release
+workflow proves its identity to npm with GitHub's OIDC token, so **no npm token is stored anywhere**,
+and every release gets a provenance attestation.
+
+Each package has a trusted publisher on npmjs.com (package → _Settings_ → _Trusted Publisher_) with:
+
+| Field                             | Value                                                                          |
+| --------------------------------- | ------------------------------------------------------------------------------ |
+| Publisher                         | GitHub Actions                                                                 |
+| Organization or user / Repository | `Grids-and-Guides` / `razorpay-js`                                             |
+| Workflow filename                 | `release.yml`                                                                  |
+| Environment                       | `npm`                                                                          |
+| Allowed actions                   | `npm publish` (and the always-allowed `npm stage publish`); `npm dist-tag` off |
+
+**Adding a new package** (e.g. a framework adapter): npm only allows a trusted publisher on a package
+that already exists. Publish its first version manually with 2FA (`pnpm publish --access public` from
+the package folder), then add the trusted publisher above. A new connection stays "Pending validation"
+until the workflow publishes through it, and must be validated within npm's deadline.
+
+Never add an `NPM_TOKEN` secret back to the repository.

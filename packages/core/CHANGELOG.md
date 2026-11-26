@@ -1,5 +1,11 @@
 # @razorpay-js/core
 
+## 1.0.0-next.1
+
+### Patch Changes
+
+- [#72](https://github.com/Grids-and-Guides/razorpay-js/pull/72) [`80803c6`](https://github.com/Grids-and-Guides/razorpay-js/commit/80803c6249ebad0f6d083d853ed2b6857b48007e) Thanks [@naveenkarmegam](https://github.com/naveenkarmegam)! - Published through npm trusted publishing with a provenance attestation. No code changes since `1.0.0-next.0`, which was published with a temporary token and has no provenance.
+
 ## 1.0.0-next.0
 
 ### Major Changes
