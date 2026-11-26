@@ -1,13 +1,16 @@
-
 /**
- * The checkout returns the response object of the successful payment (razorpay_payment_id, razorpay_order_id and razorpay_signature).
- * Collect these and send them to your server.
+ * Returned by Checkout after a successful payment.
+ * Send it to your server and **verify `razorpay_signature` there** before fulfilling the order.
  *
+ * @see {@link https://razorpay.com/docs/payments/payment-gateway/web-integration/standard/integration-steps/#16-verify-payment-signature Razorpay Docs}
  */
 export interface RazorpaySuccessResponse {
-  razorpay_signature: string;
-  razorpay_order_id: string;
   razorpay_payment_id: string;
+  razorpay_signature: string;
+  /** Present for order-based payments. */
+  razorpay_order_id?: string;
+  /** Present for subscription payments. */
+  razorpay_subscription_id?: string;
 }
 
 /**
@@ -51,13 +54,12 @@ export interface RazorpayFailedResponse {
      */
     metadata: {
       /**
-       *
-       * String Unique identifier of the payment.
-       *  */
+       * String Unique identifier of the order associated with the payment.
+       */
       order_id: string;
 
       /**
-       * String Unique identifier of the order associated with the payment.
+       * String Unique identifier of the payment.
        */
       payment_id: string;
     };
@@ -65,7 +67,7 @@ export interface RazorpayFailedResponse {
 }
 
 export type RazorpayEventCallbackMap = {
-  "payment.failed": (response: RazorpayFailedResponse) => void;
+  'payment.failed': (response: RazorpayFailedResponse) => void;
 };
 
 export type RazorpayEvent = keyof RazorpayEventCallbackMap;
@@ -109,10 +111,11 @@ export interface RazorpayCheckoutOptions {
   image?: string; // business logo
 
   /**
-   * String Order ID generated via Orders API.
-   * * @See {@link https://razorpay.com/docs/api/orders/ Razorpay Docs }
+   * String Order ID generated via Orders API on your server.
+   * Required for one-time payments; omit when passing `subscription_id`.
+   * @see {@link https://razorpay.com/docs/api/orders/ Razorpay Docs}
    */
-  order_id: string;
+  order_id?: string;
 
   /**
    * Handler call after payment success
@@ -163,16 +166,14 @@ export interface RazorpayCheckoutOptions {
      * String Pre-selection of the payment method for the customer.
      * Will only work if contact and email are also pre-filled.
      */
-    method?: "card" | "netbanking" | "wallet" | "emi" | "upi";
+    method?: 'card' | 'netbanking' | 'wallet' | 'emi' | 'upi';
   };
 
   /**
    * Set of key-value pairs that can be used to store additional information about the payment.
    * It can hold a maximum of 15 key-value pairs, each 256 characters long.
    */
-  notes?: { [key: string]: string } & { length?: 15 } & {
-    [key: string]: { length: 256 };
-  };
+  notes?: Record<string, string | number>;
 
   /**
    * Thematic options to modify the appearance of Checkout.
@@ -279,12 +280,6 @@ export interface RazorpayCheckoutOptions {
   */
   recurring?: boolean;
 
-  // /**
-  //  * String Customers will be redirected to this URL on successful payment.
-  //  * Ensure that the domain of the Callback URL is allowlisted.
-  //  */
-  // callback_url?: string;
-
   /**
    * Boolean Determines whether to post a response to the event handler post payment completion or redirect to Callback URL.
    * callback_url must be passed while using this parameter.
@@ -381,7 +376,7 @@ export interface RazorpayCheckoutOptions {
      * We recommend you to set this to 4.
      * Having a larger number here can cause loops to occur.
      */
-    max_count?: boolean;
+    max_count?: number;
   };
 
   /**
@@ -391,7 +386,7 @@ export interface RazorpayCheckoutOptions {
    * */
   config?: {
     // Object Child parameter that enables configuration of checkout display language.
-    display: {
+    display?: {
       /**
        * string The language in which checkout should be displayed.
        * Possible values:
@@ -404,7 +399,31 @@ export interface RazorpayCheckoutOptions {
        * tel: Telugu
        * Default: en
        */
-      language: "en" | "ben" | "hi" | "mar" | "guj" | "tam" | "tel";
+      language?: 'en' | 'ben' | 'hi' | 'mar' | 'guj' | 'tam' | 'tel';
     };
   };
+}
+/** An instance created by `new window.Razorpay(options)`. */
+export interface RazorpayInstance {
+  /** Opens the Checkout modal. */
+  open(): void;
+  /** Closes the Checkout modal. */
+  close(): void;
+  /** Subscribes to a Checkout event. */
+  on<K extends RazorpayEvent>(event: K, callback: RazorpayEventCallbackMap[K]): void;
+  /** Returns the options Checkout was created with. */
+  get(): RazorpayCheckoutOptions;
+  /** Returns the mode Checkout is running in. */
+  getMode(): string;
+}
+
+/** The `window.Razorpay` constructor exposed by `checkout.js`. */
+export interface RazorpayConstructor {
+  new (options: RazorpayCheckoutOptions): RazorpayInstance;
+}
+
+declare global {
+  interface Window {
+    Razorpay?: RazorpayConstructor;
+  }
 }

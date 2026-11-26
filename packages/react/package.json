@@ -1,0 +1,74 @@
+{
+  "name": "@razorpay-js/react",
+  "version": "0.0.0",
+  "description": "Type-safe React hook for Razorpay Checkout. Works with Next.js, React Router (Remix), TanStack and Vite. Community-maintained; not affiliated with Razorpay.",
+  "keywords": [
+    "razorpay",
+    "react",
+    "hook",
+    "nextjs",
+    "remix",
+    "react-router",
+    "tanstack",
+    "checkout",
+    "payment",
+    "upi",
+    "typescript"
+  ],
+  "license": "MIT",
+  "author": "Grids and Guides",
+  "homepage": "https://github.com/Grids-and-Guides/razorpay-js/tree/main/packages/react#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Grids-and-Guides/razorpay-js.git",
+    "directory": "packages/react"
+  },
+  "bugs": "https://github.com/Grids-and-Guides/razorpay-js/issues",
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.cts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.mts",
+        "default": "./dist/index.mjs"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsdown",
+    "dev": "tsdown --watch",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.test.json",
+    "check:exports": "publint --strict && attw --pack ."
+  },
+  "dependencies": {
+    "@razorpay-js/core": "workspace:^"
+  },
+  "peerDependencies": {
+    "react": ">=18"
+  },
+  "devDependencies": {
+    "@razorpay-js/tsconfig": "workspace:*",
+    "@testing-library/dom": "^10.4.2",
+    "@testing-library/react": "^16.3.3",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  }
+}

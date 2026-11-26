@@ -1,0 +1,36 @@
+name: Bug report
+description: Something in @razorpay-js isn't working
+labels: [bug, triage]
+body:
+  - type: dropdown
+    id: package
+    attributes:
+      label: Package
+      options: ['@razorpay-js/core', '@razorpay-js/react']
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Package version
+      placeholder: 1.0.0
+    validations:
+      required: true
+  - type: input
+    id: framework
+    attributes:
+      label: Framework and version
+      placeholder: Next.js 16.1 (App Router), React 19.3
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened, and what did you expect?
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Minimal reproduction
+      description: A StackBlitz link or a small repo. Never paste your key secret.
+    validations:
+      required: true

@@ -1,0 +1,11 @@
+{
+  "$schema": "https://unpkg.com/@changesets/config/schema.json",
+  "changelog": ["@changesets/changelog-github", { "repo": "Grids-and-Guides/razorpay-js" }],
+  "commit": false,
+  "fixed": [],
+  "linked": [["@razorpay-js/*"]],
+  "access": "public",
+  "baseBranch": "develop",
+  "updateInternalDependencies": "patch",
+  "ignore": []
+}
