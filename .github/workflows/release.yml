@@ -1,0 +1,85 @@
+name: Release
+
+# Branching model:
+#   develop  default branch; every PR targets it.
+#   main     release branch; only receives develop when we cut a release.
+#
+# 1. Push to develop  → opens/updates the "chore: version packages" PR into develop.
+# 2. Merge that PR    → versions and CHANGELOGs are committed on develop.
+# 3. Merge develop into main → publishes to npm and creates GitHub releases.
+#
+# Versioning on develop means main never has commits that develop lacks,
+# so no back-merge is needed after a release.
+
+on:
+  push:
+    branches: [develop, main]
+
+concurrency: release-${{ github.ref }}
+
+jobs:
+  version:
+    name: Version PR
+    if: github.ref == 'refs/heads/develop'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # push the version branch
+      pull-requests: write # open the "Version Packages" PR
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - uses: changesets/action@v2
+        with:
+          version-script: pnpm version-packages
+          pr-title: 'chore: version packages'
+          commit-message: 'chore: version packages'
+
+  publish:
+    name: Publish to npm
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: npm
+    permissions:
+      contents: write # push tags and create GitHub releases
+      id-token: write # npm trusted publishing (OIDC) + provenance
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+          registry-url: https://registry.npmjs.org
+      - run: pnpm install --frozen-lockfile
+
+      - name: Refuse to publish unversioned changesets
+        run: |
+          pending=$(find .changeset -name '*.md' ! -name 'README.md')
+          if [ -n "$pending" ]; then
+            echo "::error::Unversioned changesets reached main:"
+            echo "$pending"
+            echo "Merge the 'chore: version packages' PR into develop first, then merge develop into main."
+            exit 1
+          fi
+
+      - run: pnpm test
+
+      # With no pending changesets this only publishes versions not yet on npm,
+      # then pushes git tags and creates GitHub releases.
+      - uses: changesets/action@v2
+        # changesets/action v2 reads published packages from CHANGESETS_OUTPUT (set by the action and
+        # inherited by `changeset publish`), then pushes tags and creates releases via the GitHub API.
+        with:
+          publish-script: pnpm release
+          create-github-releases: true
+        env:
+          # Only needed for the very first publish, before npm trusted publishing can be
+          # configured (npm requires the package to exist first). Afterwards, delete the
+          # NPM_TOKEN secret from the `npm` environment: this becomes empty and npm
+          # authenticates through trusted publishing (OIDC, via the id-token permission).
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
