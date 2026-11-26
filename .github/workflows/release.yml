@@ -54,7 +54,6 @@ jobs:
         with:
           node-version-file: .nvmrc
           cache: pnpm
-          registry-url: https://registry.npmjs.org
       - run: pnpm install --frozen-lockfile
 
       - name: Refuse to publish unversioned changesets
@@ -76,12 +75,10 @@ jobs:
       - uses: changesets/action@v2
         # changesets/action v2 reads published packages from CHANGESETS_OUTPUT (set by the action and
         # inherited by `changeset publish`), then pushes tags and creates releases via the GitHub API.
+        #
+        # No npm token: pnpm authenticates with npm trusted publishing (OIDC, via the id-token
+        # permission above) and adds provenance automatically. Each package's trusted publisher on
+        # npmjs.com must match this repo, `release.yml` and the `npm` environment.
         with:
           publish-script: pnpm release
           create-github-releases: true
-        env:
-          # Only needed for the very first publish, before npm trusted publishing can be
-          # configured (npm requires the package to exist first). Afterwards, delete the
-          # NPM_TOKEN secret from the `npm` environment: this becomes empty and npm
-          # authenticates through trusted publishing (OIDC, via the id-token permission).
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
