@@ -59,7 +59,9 @@ jobs:
 
       - name: Refuse to publish unversioned changesets
         run: |
-          pending=$(find .changeset -name '*.md' ! -name 'README.md')
+          # Only top-level .changeset/*.md files are unversioned. In prerelease mode Changesets keeps
+          # already-versioned changesets in .changeset/pre/, so don't search subdirectories.
+          pending=$(find .changeset -maxdepth 1 -name '*.md' ! -name 'README.md')
           if [ -n "$pending" ]; then
             echo "::error::Unversioned changesets reached main:"
             echo "$pending"
