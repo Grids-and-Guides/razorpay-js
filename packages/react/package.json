@@ -1,6 +1,6 @@
 {
   "name": "@razorpay-js/react",
-  "version": "1.0.0-next.0",
+  "version": "1.0.0-next.1",
   "description": "Type-safe React hook for Razorpay Checkout. Works with Next.js, React Router (Remix), TanStack and Vite. Community-maintained; not affiliated with Razorpay.",
   "keywords": [
     "razorpay",
