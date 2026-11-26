@@ -26,7 +26,7 @@ jobs:
       contents: write # push the version branch
       pull-requests: write # open the "Version Packages" PR
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v5
         with:
@@ -50,7 +50,7 @@ jobs:
       contents: write # push tags and create GitHub releases
       id-token: write # npm trusted publishing (OIDC) + provenance
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v5
         with:
