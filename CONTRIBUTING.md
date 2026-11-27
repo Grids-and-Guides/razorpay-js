@@ -111,6 +111,22 @@ Because versioning happens on `develop`, there's nothing to merge back from `mai
 
 Prereleases: `pnpm changeset pre enter next` publishes to the `next` dist-tag until `pnpm changeset pre exit`.
 
+### Release GitHub App
+
+The version PR is opened by the **razorpay-js release** GitHub App instead of the default
+`GITHUB_TOKEN`, because PRs opened with `GITHUB_TOKEN` don't trigger CI. That way the version PR gets
+its required checks and goes through review like any other PR.
+
+| Setting                                 | Value                                                                 |
+| --------------------------------------- | --------------------------------------------------------------------- |
+| Owner                                   | `Grids-and-Guides` org, installed only on `razorpay-js`               |
+| Repository permissions                  | Contents: read & write · Pull requests: read & write · Metadata: read |
+| Webhook                                 | Off                                                                   |
+| `release-pr` environment (develop only) | variable `RELEASE_APP_CLIENT_ID`, secret `RELEASE_APP_PRIVATE_KEY`    |
+
+To rotate the key: generate a new private key in the App's settings, replace `RELEASE_APP_PRIVATE_KEY`,
+then delete the old key from the App.
+
 ### npm trusted publishing
 
 Publishing uses [npm trusted publishing](https://docs.npmjs.com/trusted-publishers): the Release

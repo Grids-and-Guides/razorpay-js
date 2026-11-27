@@ -22,10 +22,20 @@ jobs:
     name: Version PR
     if: github.ref == 'refs/heads/develop'
     runs-on: ubuntu-latest
+    # Holds the release GitHub App's credentials; only the develop branch can use this environment.
+    environment: release-pr
     permissions:
-      contents: write # push the version branch
-      pull-requests: write # open the "Version Packages" PR
+      contents: read # everything that writes uses the GitHub App token below
     steps:
+      # PRs opened with the default GITHUB_TOKEN don't trigger workflows, so CI would never run on
+      # the version PR. A GitHub App token avoids that, and the PR goes through review like any other.
+      - uses: actions/create-github-app-token@v3
+        id: app-token
+        with:
+          client-id: ${{ vars.RELEASE_APP_CLIENT_ID }}
+          private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+          permission-contents: write # push the version branch
+          permission-pull-requests: write # open/update the version PR
       - uses: actions/checkout@v7
       - uses: pnpm/action-setup@v6
       - uses: actions/setup-node@v7
@@ -38,6 +48,7 @@ jobs:
           version-script: pnpm version-packages
           pr-title: 'chore: version packages'
           commit-message: 'chore: version packages'
+          github-token: ${{ steps.app-token.outputs.token }}
 
   publish:
     name: Publish to npm
